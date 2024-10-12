@@ -48,10 +48,10 @@ RUN mkdir /var/run/sshd \
     && sed -i 's/UsePAM yes/UsePAM no/' /etc/ssh/sshd_config
 
 # Clone the GitHub repository (replace with your repository URL)
-RUN git clone https://github.com/<username>/<repository>.git /path/to/destination
+RUN git clone https://github.com/AspiredMC/Jetbrains-Workspace.git /app
 
 # Set the working directory to the cloned repository
-WORKDIR /path/to/destination
+WORKDIR /app
 
 # Install PHP dependencies using Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
