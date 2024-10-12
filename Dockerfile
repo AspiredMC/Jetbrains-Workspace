@@ -28,6 +28,7 @@ RUN apt-get install -y \
 RUN apt-get install -y \
     openssh-server \
     git \
+    github \ 
     curl \
     wget \
     zip \
@@ -42,7 +43,7 @@ RUN mkdir /var/run/sshd \
 
 RUN mkdir Workspace
 
-RUN git clone https://github.com/AspiredMC/Jetbrains-Workspace.git
+RUN gh repo clone AspiredMC/Jetbrains-Workspace
 
 WORKDIR Jetbrains-Workspace
 
