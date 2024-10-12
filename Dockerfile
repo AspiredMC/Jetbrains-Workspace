@@ -42,9 +42,9 @@ RUN mkdir /var/run/sshd \
 
 RUN mkdir Workspace
 
-RUN git clone https://github.com/AspiredMC/Jetbrains-Workspace.git Workspace
+RUN git clone https://github.com/AspiredMC/Jetbrains-Workspace.git
 
-WORKDIR Workspace
+WORKDIR Jetbrains-Workspace
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && composer install
