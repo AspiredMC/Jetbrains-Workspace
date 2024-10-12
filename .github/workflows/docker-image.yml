@@ -23,15 +23,27 @@ jobs:
       uses: docker/login-action@v2
       with:
         registry: ghcr.io
-        username: ${{ github.actor }}  # Use the GitHub username or organization name
-        password: ${{ secrets.GITHUB_TOKEN }}  # Use the GitHub token for authentication
+        username: ${{ github.actor }}  
+        password: ${{ secrets.GITHUB_TOKEN }} 
 
     - name: Build the Docker image
+      id: build
       run: |
-        docker build . --file Dockerfile --tag ghcr.io/aspiredmc/jetbrains-workspace:latest
-        docker tag ghcr.io/aspiredmc/jetbrains-workspace:latest ghcr.io/aspiredmc/jetbrains-workspace:$(date +%s)
+        IMAGE_NAME=ghcr.io/aspiredmc/jetbrains-workspace
+        TIMESTAMP=$(date +%s)
+        
+        docker build . --file Dockerfile --tag ${IMAGE_NAME}:latest
+        
+        docker tag ${IMAGE_NAME}:latest ${IMAGE_NAME}:${TIMESTAMP}
+        
+        echo "::set-output name=latest_tag::${IMAGE_NAME}:latest"
+        echo "::set-output name=timestamp_tag::${IMAGE_NAME}:${TIMESTAMP}"
 
     - name: Push Docker image to GitHub Packages
       run: |
-        docker push ghcr.io/aspiredmc/jetbrains-workspace:latest
-        docker push ghcr.io/aspiredmc/jetbrains-workspace:$(date +%s)
+        IMAGE_NAME=ghcr.io/aspiredmc/jetbrains-workspace
+        
+        docker push ${IMAGE_NAME}:latest
+        
+        TIMESTAMP_TAG=${{ steps.build.outputs.timestamp_tag }}
+        docker push ${TIMESTAMP_TAG}
