@@ -47,7 +47,9 @@ RUN mkdir /var/run/sshd \
 
 RUN mkdir Workspace
 
-RUN git clone https://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@github.com/AspiredMC/Jetbrains-Workspace
+ARG GITHUB_TOKEN
+
+RUN git clone https://$GITHUB_TOKEN@github.com/AspiredMC/Jetbrains-Workspace
 
 WORKDIR Jetbrains-Workspace
 
