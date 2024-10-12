@@ -17,6 +17,9 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | t
     && echo "deb [signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list \
     && apt-get update
 
+RUN add-apt-repository ppa:ondrej/php \
+    && apt-get update
+
 RUN apt-get install -y \
     gh \
     openssh-server \
