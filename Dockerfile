@@ -47,7 +47,7 @@ RUN mkdir /var/run/sshd \
 
 RUN mkdir Workspace
 
-RUN gh repo clone AspiredMC/Jetbrains-Workspace
+RUN git clone https://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@github.com/AspiredMC/Jetbrains-Workspace
 
 WORKDIR Jetbrains-Workspace
 
