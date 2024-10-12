@@ -40,9 +40,11 @@ RUN mkdir /var/run/sshd \
     && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
     && sed -i 's/UsePAM yes/UsePAM no/' /etc/ssh/sshd_config
 
-RUN git clone https://github.com/AspiredMC/Jetbrains-Workspace.git ./
+RUN mkdir Workspace
 
-WORKDIR ./
+RUN git clone https://github.com/AspiredMC/Jetbrains-Workspace.git Workspace
+
+WORKDIR Workspace
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && composer install
