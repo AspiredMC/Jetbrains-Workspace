@@ -1,6 +1,11 @@
 FROM ubuntu:20.04
 
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=America/New_York
+
+# Install necessary packages
 RUN apt-get update && apt-get install -y \
+    tzdata \
     openssh-server \
     git \
     curl \
@@ -10,6 +15,8 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     software-properties-common \
     && apt-get clean
+
+RUN ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && dpkg-reconfigure -f noninteractive tzdata
 
 RUN add-apt-repository ppa:ondrej/php && apt-get update && apt-get install -y \
     php8.0 \
