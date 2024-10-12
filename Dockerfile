@@ -51,9 +51,6 @@ RUN git clone https://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@github.com/Aspire
 
 WORKDIR Jetbrains-Workspace
 
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-    && composer install
-
 EXPOSE ${SSH_PORT:-22}
 
 COPY entrypoint.sh /entrypoint.sh
