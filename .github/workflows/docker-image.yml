@@ -28,10 +28,10 @@ jobs:
 
     - name: Build the Docker image
       run: |
-        docker build . --file Dockerfile --tag ghcr.io/AspiredMC/jetbrains-workspace:latest
-        docker tag ghcr.io/AspiredMC/jetbrains-workspace:latest ghcr.io/AspiredMC/jetbrains-workspace:$(date +%s)
+        docker build . --file Dockerfile --tag ghcr.io/aspiredmc/jetbrains-workspace:latest
+        docker tag ghcr.io/aspiredmc/jetbrains-workspace:latest ghcr.io/aspiredmc/jetbrains-workspace:$(date +%s)
 
     - name: Push Docker image to GitHub Packages
       run: |
-        docker push ghcr.io/AspiredMC/jetbrains-workspace:latest
-        docker push ghcr.io/AspiredMC/jetbrains-workspace:$(date +%s)
+        docker push ghcr.io/aspiredmc/jetbrains-workspace:latest
+        docker push ghcr.io/aspiredmc/jetbrains-workspace:$(date +%s)
