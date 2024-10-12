@@ -28,7 +28,7 @@ RUN apt-get install -y \
 RUN apt-get install -y \
     openssh-server \
     git \
-    github \ 
+    gh \ 
     curl \
     wget \
     zip \
