@@ -1,15 +1,16 @@
 #!/bin/bash
 
-# Set a default SSH port if not specified
-SSH_PORT=${SSH_PORT:-2007}
+# Set the SSH host key directory
+KEY_DIR="/home/container/sshd"
 
-# Ensure that the host keys are in the correct location
-if [ ! -f /home/container/sshd/ssh_host_rsa_key ]; then
-    echo "Host keys not found in /home/container/sshd, generating keys..."
-    ssh-keygen -A
-    cp /etc/ssh/ssh_host_* /home/container/sshd/
+# Check for SSH host keys and generate them if not found
+if [ ! -f "${KEY_DIR}/ssh_host_rsa_key" ]; then
+    echo "Generating SSH host keys..."
+    ssh-keygen -A -f "${KEY_DIR}/ssh_host_" # Generate keys in the specified directory
+    chmod 600 ${KEY_DIR}/ssh_host_*_key
+    chmod 644 ${KEY_DIR}/ssh_host_*_key.pub
 fi
 
-# Start the SSH daemon from the new directory
+# Start the SSH daemon
 echo "Starting SSH daemon on port ${SSH_PORT}..."
-exec /usr/sbin/sshd -D -p "${SSH_PORT}" -f /home/container/sshd/sshd_config
+/usr/sbin/sshd -D -p ${SSH_PORT} -f ${KEY_DIR}/sshd_config
