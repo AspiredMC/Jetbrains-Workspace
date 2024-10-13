@@ -1,30 +1,23 @@
 FROM php:8.2-cli
 
-RUN apt-get update && apt-get install -y \
-    git \
-    zip \
-    unzip \
-    curl \
-    libzip-dev \
-    libonig-dev \
-    libcurl4-openssl-dev \
-    pkg-config \
-    libssl-dev \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    nodejs \
-    npm \
-    openssh-server
+# Install necessary PHP extensions
+RUN apt-get update && apt-get install -y git unzip zip libzip-dev \
+    && docker-php-ext-install zip
 
-RUN mkdir /var/run/sshd
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
-RUN sed -i 's/PermitRootLogin without-password/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
-RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh
+# Create work directory
+WORKDIR /var/www
 
-EXPOSE ${SSH_PORT}
+# Install Node.js and npm for frontend work
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
+    && apt-get install -y nodejs
 
-WORKDIR /workspace
+# Install Xdebug for debugging in PhpStorm
+RUN pecl install xdebug && docker-php-ext-enable xdebug
 
-CMD ["/usr/sbin/sshd", "-D"]
+# Expose ports for PhpStorm debugging
+EXPOSE 9000
+
+CMD [ "php", "-S", "0.0.0.0:2007", "-t", "/var/www" ]
