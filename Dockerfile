@@ -1,13 +1,13 @@
 # Use a base image with SSH support, e.g., Ubuntu or Debian
 FROM ubuntu:20.04
 
-# Set the timezone environment variable
+# Set the timezone environment variable (optional)
 ENV TZ=America/New_York
 
-# Install necessary packages and set up tzdata in non-interactive mode
+# Install basic necessary packages
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    openssh-server sudo docker.io tzdata && \
+    openssh-server sudo tzdata && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -15,53 +15,18 @@ RUN apt-get update && \
 RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
     echo ${TZ} > /etc/timezone
 
-# Create the directory for SSHD and the host key directory
-RUN mkdir -p /home/container/sshd && \
-    mkdir /var/run/sshd && \
-    echo 'root:rootpassword' | chpasswd
+# Create directory for container operations
+RUN mkdir -p /home/container
 
-# Allow root login via SSH (not recommended for production environments)
-RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+# Copy the install.sh script into the container
+COPY install.sh /home/container/install.sh
+RUN chmod +x /home/container/install.sh
 
-# Allow password authentication
-RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+# Expose SSH port (default or dynamic via script)
+EXPOSE 2007
 
-# Set default SSH port to 2007
-ENV SSH_PORT=2007
-
+# Set working directory
 WORKDIR /home/container
 
-# Copy SSH configuration template to the new directory
-COPY sshd_config /home/container/sshd/sshd_config
-
-# Generate SSH host keys in the specified directory
-RUN ssh-keygen -t rsa -f /home/container/sshd/ssh_host_rsa_key -N '' && \
-    ssh-keygen -t ecdsa -f /home/container/sshd/ssh_host_ecdsa_key -N '' && \
-    ssh-keygen -t ed25519 -f /home/container/sshd/ssh_host_ed25519_key -N ''
-
-# Set permissions for the generated keys
-RUN chmod 600 /home/container/sshd/ssh_host_*_key && \
-    chmod 644 /home/container/sshd/ssh_host_*_key.pub
-
-# Copy the entrypoint script and set permissions
-COPY start.sh /usr/local/bin/start.sh
-RUN chmod +x /usr/local/bin/start.sh
-
-# Expose the SSH port
-EXPOSE ${SSH_PORT}
-
-# Set up a non-root user (for safety and convenience)
-# Create the pterodactyl user and set up its home directory
-RUN useradd -m -d /home/container -s /bin/bash pterodactyl \
-    && echo 'pterodactyl:pteropassword' | chpasswd \
-    && usermod -aG sudo pterodactyl
-
-# Create the docker group if it doesn't exist and add the user to it
-RUN groupadd -f docker \
-    && usermod -aG docker pterodactyl
-
-# Switch to the pterodactyl user
-USER pterodactyl
-
-# Start the SSH service with custom entrypoint script
-CMD ["/usr/local/bin/start.sh"]
+# Start by running the install script
+ENTRYPOINT ["/home/container/install.sh"]
