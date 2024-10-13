@@ -1,9 +1,19 @@
 # Use a base image with SSH support, e.g., Ubuntu or Debian
 FROM ubuntu:20.04
 
-# Install necessary packages
-RUN apt-get update && apt-get install -y \
-    openssh-server sudo docker.io
+# Set the timezone environment variable (optional)
+ENV TZ=America/New_York
+
+# Install necessary packages and set up tzdata in non-interactive mode
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    openssh-server sudo docker.io tzdata && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Configure the timezone
+RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
+    echo ${TZ} > /etc/timezone
 
 # Set up SSH
 RUN mkdir /var/run/sshd
@@ -16,7 +26,7 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/
 RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
 
 # Set default SSH port
-ENV SSH_PORT=22
+ENV SSH_PORT=2007
 
 # Expose the SSH port
 EXPOSE ${SSH_PORT}
