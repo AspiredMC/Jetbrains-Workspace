@@ -25,14 +25,15 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/
 # Allow password authentication
 RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
 
-# Generate SSH host keys
-RUN ssh-keygen -A
-
-# Set default SSH port
+# Set default SSH port to 2007
 ENV SSH_PORT=2007
 
+# Copy the entrypoint script and set permissions
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 # Expose the SSH port
-EXPOSE 2007
+EXPOSE ${SSH_PORT}
 
 # Set up a non-root user (for safety and convenience)
 RUN useradd -ms /bin/bash pterodactyl && echo 'pterodactyl:pteropassword' | chpasswd
@@ -41,5 +42,5 @@ RUN usermod -aG sudo pterodactyl
 # Enable Docker inside the container
 RUN usermod -aG docker pterodactyl
 
-# Start the SSH service
-CMD ["/usr/sbin/sshd", "-D", "-p", "2007"]
+# Set the entrypoint
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
