@@ -33,10 +33,13 @@ ENV SSH_PORT=2007
 COPY sshd_config /home/container/sshd/sshd_config
 
 # Generate SSH host keys in the specified directory
-RUN ssh-keygen -A -f /home/container/sshd
+RUN ssh-keygen -t rsa -f /home/container/sshd/ssh_host_rsa_key -N '' && \
+    ssh-keygen -t ecdsa -f /home/container/sshd/ssh_host_ecdsa_key -N '' && \
+    ssh-keygen -t ed25519 -f /home/container/sshd/ssh_host_ed25519_key -N ''
 
 # Set permissions for the generated keys
-RUN chmod 600 /home/container/sshd/*
+RUN chmod 600 /home/container/sshd/ssh_host_*_key && \
+    chmod 644 /home/container/sshd/ssh_host_*_key.pub
 
 # Copy the entrypoint script and set permissions
 COPY start.sh /usr/local/bin/start.sh
