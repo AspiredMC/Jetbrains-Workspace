@@ -33,4 +33,4 @@ RUN usermod -aG sudo pterodactyl
 RUN usermod -aG docker pterodactyl
 
 # Start the SSH service
-CMD ["/usr/sbin/sshd", "-D"]
+CMD ["/usr/sbin/sshd", "-D", "-p", "2007"]
