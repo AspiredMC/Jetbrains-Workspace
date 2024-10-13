@@ -32,7 +32,7 @@ RUN ssh-keygen -A
 ENV SSH_PORT=2007
 
 # Expose the SSH port
-EXPOSE ${SSH_PORT}
+EXPOSE 2007
 
 # Set up a non-root user (for safety and convenience)
 RUN useradd -ms /bin/bash pterodactyl && echo 'pterodactyl:pteropassword' | chpasswd
@@ -42,4 +42,4 @@ RUN usermod -aG sudo pterodactyl
 RUN usermod -aG docker pterodactyl
 
 # Start the SSH service
-CMD ["/usr/sbin/sshd", "-D", "-p", "${SSH_PORT}"]
+CMD ["/usr/sbin/sshd", "-D", "-p", "2007"]
