@@ -1,21 +1,33 @@
-# Use a base image with SSH support
-FROM ubuntu:20.04 AS builder
+# Use the official Ubuntu base image
+FROM ubuntu:22.04
 
-# Set the timezone environment variable
-ENV TZ=America/New_York
+# Set environment variables to prevent interactive prompts during installation
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Install necessary packages and set up tzdata in non-interactive mode
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    openssh-server sudo docker.io tzdata && \
+# Update package index and install required packages
+RUN apt-get update -y && \
+    apt-get install -y \
+    openssh-server \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    software-properties-common && \
+    # Install Docker
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \
+    apt-get update -y && \
+    apt-get install -y docker-ce && \
+    # Clean up unnecessary files
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Create the home directory for the container and set it
-RUN mkdir -p /home/container
+# Set up SSH
+RUN mkdir /var/run/sshd && \
+    echo 'root:password' | chpasswd && \
+    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 
-# Copy the install script to the appropriate location
-COPY install.sh /home/container/install.sh
+# Expose SSH and Docker ports
+EXPOSE 2007
 
-# Execute the install script when the container starts
-CMD ["/home/container/install.sh"]
+# Start SSH and keep the container running
+CMD ["/usr/sbin/sshd", "-D", "-p", "2007"]
