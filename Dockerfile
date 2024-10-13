@@ -15,7 +15,7 @@ RUN apt-get update && \
 RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
     echo ${TZ} > /etc/timezone
 
-# Create the directory for SSHD
+# Create the directory for SSHD and setup
 RUN mkdir -p /home/container/sshd && \
     mkdir /var/run/sshd && \
     echo 'root:rootpassword' | chpasswd
@@ -29,7 +29,7 @@ RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/
 # Set default SSH port to 2007
 ENV SSH_PORT=2007
 
-# Force SSH host keys creation
+# Generate SSH host keys
 RUN ssh-keygen -A && \
     mv /etc/ssh/ssh_host_* /home/container/sshd/ && \
     chmod 600 /home/container/sshd/ssh_host_*_key && \
