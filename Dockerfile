@@ -33,7 +33,7 @@ ENV SSH_PORT=2007
 COPY sshd_config /home/container/sshd/sshd_config
 
 # Generate SSH host keys in the specified directory
-RUN ssh-keygen -A -f /home/container/sshd/ssh_host_
+RUN ssh-keygen -A -f /home/container/sshd
 
 # Set permissions for the generated keys
 RUN chmod 600 /home/container/sshd/ssh_host_*_key && \
