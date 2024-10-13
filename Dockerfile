@@ -53,7 +53,7 @@ RUN chmod +x /usr/local/bin/start.sh
 EXPOSE ${SSH_PORT}
 
 # Set up a non-root user (for safety and convenience)
-RUN useradd -ms /bin/bash pterodactyl && echo 'pterodactyl:pteropassword' | chpasswd
+RUN adduser -h /home/container -ms /bin/bash pterodactyl && echo 'pterodactyl:pteropassword' | chpasswd
 RUN usermod -aG sudo pterodactyl
 
 # Enable Docker inside the container
