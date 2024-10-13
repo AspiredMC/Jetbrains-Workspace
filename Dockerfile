@@ -29,7 +29,7 @@ RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/
 RUN ssh-keygen -A
 
 # Set default SSH port
-ENV SSH_PORT=22
+ENV SSH_PORT=2007
 
 # Expose the SSH port
 EXPOSE ${SSH_PORT}
