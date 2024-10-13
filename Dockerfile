@@ -15,7 +15,7 @@ RUN apt-get update && \
 RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
     echo ${TZ} > /etc/timezone
 
-# Create the directory for SSHD and setup
+# Create the directory for SSHD
 RUN mkdir -p /home/container/sshd && \
     mkdir /var/run/sshd && \
     echo 'root:rootpassword' | chpasswd
@@ -29,7 +29,7 @@ RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/
 # Set default SSH port to 2007
 ENV SSH_PORT=2007
 
-# Generate SSH host keys
+# Generate SSH host keys and store them in the specified directory
 RUN ssh-keygen -A && \
     mv /etc/ssh/ssh_host_* /home/container/sshd/ && \
     chmod 600 /home/container/sshd/ssh_host_*_key && \
@@ -52,5 +52,5 @@ RUN usermod -aG sudo pterodactyl
 # Enable Docker inside the container
 RUN usermod -aG docker pterodactyl
 
-# Set the entrypoint
-ENTRYPOINT ["/usr/local/bin/start.sh"]
+# Start SSH daemon in foreground
+CMD ["/usr/sbin/sshd", "-D", "-p", "2007", "-f", "/home/container/sshd/sshd_config"]
