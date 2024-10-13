@@ -53,12 +53,16 @@ RUN chmod +x /usr/local/bin/start.sh
 EXPOSE ${SSH_PORT}
 
 # Set up a non-root user (for safety and convenience)
-RUN adduser -h /home/container -ms /bin/bash pterodactyl && echo 'pterodactyl:pteropassword' | chpasswd
-RUN usermod -aG sudo pterodactyl
+# Create the pterodactyl user and set up its home directory
+RUN useradd -m -d /home/container -s /bin/bash pterodactyl \
+    && echo 'pterodactyl:pteropassword' | chpasswd \
+    && usermod -aG sudo pterodactyl
 
-# Enable Docker inside the container
-RUN usermod -aG docker pterodactyl
+# Create the docker group if it doesn't exist and add the user to it
+RUN groupadd -f docker \
+    && usermod -aG docker pterodactyl
 
+# Switch to the pterodactyl user
 USER pterodactyl
 
 # Start the SSH service with custom entrypoint script
