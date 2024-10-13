@@ -32,6 +32,10 @@ ENV SSH_PORT=2007
 COPY start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 
+RUN ssh-keygen -A && \
+    chmod 600 /etc/ssh/ssh_host_*_key && \
+    chmod 644 /etc/ssh/ssh_host_*_key.pub
+
 # Expose the SSH port
 EXPOSE ${SSH_PORT}
 
