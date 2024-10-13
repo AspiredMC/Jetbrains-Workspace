@@ -37,8 +37,5 @@ WORKDIR /workspace
 # Expose the ports for Xdebug
 EXPOSE 9003
 
-# Add the default PHP.ini config file
-COPY php.ini /usr/local/etc/php/conf.d/
-
 # Command to keep the container running
 CMD ["php", "-a"]
