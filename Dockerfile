@@ -59,5 +59,7 @@ RUN usermod -aG sudo pterodactyl
 # Enable Docker inside the container
 RUN usermod -aG docker pterodactyl
 
+USER pterodactyl
+
 # Start the SSH service with custom entrypoint script
 CMD ["/usr/local/bin/start.sh"]
