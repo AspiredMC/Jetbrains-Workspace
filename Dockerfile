@@ -29,8 +29,8 @@ RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/
 ENV SSH_PORT=2007
 
 # Copy the entrypoint script and set permissions
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+COPY start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
 
 # Expose the SSH port
 EXPOSE ${SSH_PORT}
@@ -43,4 +43,4 @@ RUN usermod -aG sudo pterodactyl
 RUN usermod -aG docker pterodactyl
 
 # Set the entrypoint
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/start.sh"]
