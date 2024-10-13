@@ -16,26 +16,22 @@ RUN apt-get update && apt-get install -y \
     libjpeg-dev \
     libfreetype6-dev \
     nodejs \
-    npm
+    npm \
+    openssh-server
 
-# Install composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Enable SSH for remote connections
+RUN mkdir /var/run/sshd
 
-# Install extensions
-RUN docker-php-ext-configure zip
-RUN docker-php-ext-install zip mbstring pdo pdo_mysql curl gd
+# Disable password authentication and enable SSH key-based authentication
+RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+RUN sed -i 's/PermitRootLogin without-password/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
+RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh
 
-# Setup Xdebug for PHPStorm
-RUN pecl install xdebug && docker-php-ext-enable xdebug
-
-# Install DevContainer CLI if needed
-RUN npm install -g @devcontainers/cli
+# Set environment variable for the SSH port
+EXPOSE ${SSH_PORT}
 
 # Set the working directory
 WORKDIR /workspace
 
-# Expose the ports for Xdebug
-EXPOSE 9003
-
-# Command to keep the container running
-CMD ["php", "-a"]
+# Start SSH and keep the container running
+CMD ["/usr/sbin/sshd", "-D"]
