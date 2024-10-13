@@ -31,7 +31,7 @@ ENV SSH_PORT=2007
 
 # Force SSH host keys creation
 RUN ssh-keygen -A && \
-    cp /etc/ssh/ssh_host_* /home/container/sshd/ && \
+    mv /etc/ssh/ssh_host_* /home/container/sshd/ && \
     chmod 600 /home/container/sshd/ssh_host_*_key && \
     chmod 644 /home/container/sshd/ssh_host_*_key.pub
 
