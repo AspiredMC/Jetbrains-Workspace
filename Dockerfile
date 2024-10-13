@@ -36,8 +36,7 @@ COPY sshd_config /home/container/sshd/sshd_config
 RUN ssh-keygen -A -f /home/container/sshd
 
 # Set permissions for the generated keys
-RUN chmod 600 /home/container/sshd/ssh_host_*_key && \
-    chmod 644 /home/container/sshd/ssh_host_*_key.pub
+RUN chmod 600 /home/container/sshd/*
 
 # Copy the entrypoint script and set permissions
 COPY start.sh /usr/local/bin/start.sh
