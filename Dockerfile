@@ -1,23 +1,32 @@
-FROM php:8.2-cli
+# Use a base image with SSH support, e.g., Ubuntu or Debian
+FROM ubuntu:20.04
 
-# Install necessary PHP extensions
-RUN apt-get update && apt-get install -y git unzip zip libzip-dev \
-    && docker-php-ext-install zip
+# Install necessary packages
+RUN apt-get update && apt-get install -y \
+    openssh-server sudo docker.io
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Set up SSH
+RUN mkdir /var/run/sshd
+RUN echo 'root:rootpassword' | chpasswd
 
-# Create work directory
-WORKDIR /var/www
+# Allow root login via SSH (not recommended for production environments)
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 
-# Install Node.js and npm for frontend work
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
-    && apt-get install -y nodejs
+# Allow password authentication
+RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
 
-# Install Xdebug for debugging in PhpStorm
-RUN pecl install xdebug && docker-php-ext-enable xdebug
+# Set default SSH port
+ENV SSH_PORT=22
 
-# Expose ports for PhpStorm debugging
-EXPOSE 9000
+# Expose the SSH port
+EXPOSE ${SSH_PORT}
 
-CMD [ "php", "-S", "0.0.0.0:2007", "-t", "/var/www" ]
+# Set up a non-root user (for safety and convenience)
+RUN useradd -ms /bin/bash pterodactyl && echo 'pterodactyl:pteropassword' | chpasswd
+RUN usermod -aG sudo pterodactyl
+
+# Enable Docker inside the container
+RUN usermod -aG docker pterodactyl
+
+# Start the SSH service
+CMD ["/usr/sbin/sshd", "-D", "-p", "${SSH_PORT}"]
