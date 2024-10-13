@@ -1,59 +1,44 @@
-FROM ubuntu:20.04
+# Base image for PHP development
+FROM php:8.2-cli
 
-ARG DEBIAN_FRONTEND=noninteractive
-ENV TZ=America/New_York
-
+# Install necessary development dependencies
 RUN apt-get update && apt-get install -y \
-    software-properties-common \
-    curl \
-    apt-transport-https \
-    ca-certificates \
-    tzdata \
-    && ln -fs /usr/share/zoneinfo/$TZ /etc/localtime \
-    && dpkg-reconfigure -f noninteractive tzdata
-
-# Add the GitHub CLI repository
-RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | tee /usr/share/keyrings/githubcli-archive-keyring.gpg > /dev/null \
-    && echo "deb [signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list \
-    && apt-get update
-
-RUN add-apt-repository ppa:ondrej/php \
-    && apt-get update
-
-RUN apt-get install -y \
-    gh \
-    openssh-server \
     git \
-    wget \
     zip \
     unzip \
-    build-essential \
-    php8.0 \
-    php8.0-cli \
-    php8.0-common \
-    php8.0-xml \
-    php8.0-mbstring \
-    php8.0-curl \
-    php8.0-zip \
-    php8.0-mysql \
-    php-pear \
-    php-dev \
-    && apt-get clean
+    curl \
+    libzip-dev \
+    libonig-dev \
+    libcurl4-openssl-dev \
+    pkg-config \
+    libssl-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    nodejs \
+    npm
 
-RUN mkdir /var/run/sshd \
-    && echo 'root:rootpassword' | chpasswd \
-    && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
-    && sed -i 's/UsePAM yes/UsePAM no/' /etc/ssh/sshd_config
+# Install composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-RUN mkdir Workspace
+# Install extensions
+RUN docker-php-ext-configure zip
+RUN docker-php-ext-install zip mbstring pdo pdo_mysql curl gd
 
-RUN git clone https://github.com/AspiredMC/Jetbrains-Workspace.git
+# Setup Xdebug for PHPStorm
+RUN pecl install xdebug && docker-php-ext-enable xdebug
 
-WORKDIR Jetbrains-Workspace
+# Install DevContainer CLI if needed
+RUN npm install -g @devcontainers/cli
 
-EXPOSE ${SSH_PORT:-22}
+# Set the working directory
+WORKDIR /workspace
 
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Expose the ports for Xdebug
+EXPOSE 9003
 
-CMD ["/entrypoint.sh"]
+# Add the default PHP.ini config file
+COPY php.ini /usr/local/etc/php/conf.d/
+
+# Command to keep the container running
+CMD ["php", "-a"]
