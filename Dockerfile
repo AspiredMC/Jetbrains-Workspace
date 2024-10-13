@@ -15,7 +15,7 @@ RUN apt-get update && \
 RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
     echo ${TZ} > /etc/timezone
 
-# Create the directory for SSHD
+# Create the directory for SSHD and the host key directory
 RUN mkdir -p /home/container/sshd && \
     mkdir /var/run/sshd && \
     echo 'root:rootpassword' | chpasswd
@@ -29,14 +29,15 @@ RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/
 # Set default SSH port to 2007
 ENV SSH_PORT=2007
 
-# Generate SSH host keys and store them in the specified directory
-RUN ssh-keygen -A && \
-    mv /etc/ssh/ssh_host_* /home/container/sshd/ && \
-    chmod 600 /home/container/sshd/ssh_host_*_key && \
-    chmod 644 /home/container/sshd/ssh_host_*_key.pub
-
-# Copy SSH configuration to the new directory
+# Copy SSH configuration template to the new directory
 COPY sshd_config /home/container/sshd/sshd_config
+
+# Generate SSH host keys in the specified directory
+RUN ssh-keygen -A -f /home/container/sshd/ssh_host_
+
+# Set permissions for the generated keys
+RUN chmod 600 /home/container/sshd/ssh_host_*_key && \
+    chmod 644 /home/container/sshd/ssh_host_*_key.pub
 
 # Copy the entrypoint script and set permissions
 COPY start.sh /usr/local/bin/start.sh
@@ -52,5 +53,5 @@ RUN usermod -aG sudo pterodactyl
 # Enable Docker inside the container
 RUN usermod -aG docker pterodactyl
 
-# Start SSH daemon in foreground
-CMD ["/usr/sbin/sshd", "-D", "-p", "2007", "-f", "/home/container/sshd/sshd_config"]
+# Start the SSH service with custom entrypoint script
+CMD ["/usr/local/bin/start.sh"]
