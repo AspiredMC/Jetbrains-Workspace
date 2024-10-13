@@ -29,8 +29,6 @@ RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/
 # Set default SSH port to 2007
 ENV SSH_PORT=2007
 
-RUN adduser -D -h /home/container container
-
 WORKDIR /home/container
 
 # Copy SSH configuration template to the new directory
